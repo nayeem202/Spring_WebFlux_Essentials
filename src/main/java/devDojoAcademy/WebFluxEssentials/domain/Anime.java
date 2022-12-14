@@ -1,21 +1,27 @@
 package devDojoAcademy.WebFluxEssentials.domain;
 
-import com.fasterxml.jackson.annotation.JsonTypeId;
+
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.relational.core.mapping.Table;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 @With
+@Table(name = "anime")
 public class Anime {
-    @Id
-    private Integer id;
-    @NotNull
-    @NotEmpty(message = "The name of the anime can not ber empty")
-    private String name;
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private long id;
+
+    @NotNull
+    @NotEmpty(message = "Name can not be empty")
+    private String name;
 }
