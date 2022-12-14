@@ -1,6 +1,7 @@
 
 package devDojoAcademy.WebFluxEssentials.Exception;
 
+import io.micrometer.common.util.StringUtils;
 import org.springframework.boot.autoconfigure.web.WebProperties;
 import org.springframework.boot.autoconfigure.web.reactive.error.AbstractErrorWebExceptionHandler;
 import org.springframework.boot.web.error.ErrorAttributeOptions;
@@ -40,8 +41,11 @@ public class GlobalExceptionHandler extends AbstractErrorWebExceptionHandler {
     }
 
     private Mono<ServerResponse> formaterrorResponse(ServerRequest request){
-        Map<String, Object> errorAttributesMap = getErrorAttributes(request, ErrorAttributeOptions.of(ErrorAttributeOptions.Include.STACK_TRACE));
-        //int status = (int) Optional.ofNullable((errorAttributesMap.get("status")));
+        String query = request.uri().getQuery();
+        ErrorAttributeOptions errorAttributeOptions =
+        isTraceEnabled(query) ? ErrorAttributeOptions.of(ErrorAttributeOptions.Include.STACK_TRACE) : ErrorAttributeOptions.defaults();
+        Map<String, Object> errorAttributesMap = getErrorAttributes(request, errorAttributeOptions);
+
       int status = (int) Optional.ofNullable(errorAttributesMap.get("status")).orElse("500");
 
         return  ServerResponse
@@ -49,4 +53,10 @@ public class GlobalExceptionHandler extends AbstractErrorWebExceptionHandler {
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(BodyInserters.fromValue(errorAttributesMap));
     }
+
+    private boolean isTraceEnabled(String query){
+        return !StringUtils.isEmpty(query)  && query.contains("trace = true");
+    }
+
+
 }
