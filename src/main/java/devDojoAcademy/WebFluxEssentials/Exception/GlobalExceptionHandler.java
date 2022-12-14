@@ -22,14 +22,7 @@ import java.util.Optional;
 @Component
 @Order(-2)
 public class GlobalExceptionHandler extends AbstractErrorWebExceptionHandler {
-    /**
-     * Create a new {@code AbstractErrorWebExceptionHandler}.
-     *
-     * @param errorAttributes    the error attributes
-     * @param resources          the resources configuration properties
-     * @param applicationContext the application context
-     * @since 2.4.0
-     */
+
     public GlobalExceptionHandler(ErrorAttributes errorAttributes, WebProperties.Resources resources, ApplicationContext applicationContext, ServerCodecConfigurer codecConfigurer) {
         super(errorAttributes, resources, applicationContext);
         this.setMessageWriters(codecConfigurer.getWriters());
@@ -57,6 +50,4 @@ public class GlobalExceptionHandler extends AbstractErrorWebExceptionHandler {
     private boolean isTraceEnabled(String query){
         return !StringUtils.isEmpty(query)  && query.contains("trace = true");
     }
-
-
 }

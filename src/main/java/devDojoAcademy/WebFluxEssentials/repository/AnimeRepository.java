@@ -12,13 +12,14 @@ import reactor.core.publisher.Mono;
 
 
 @Repository
-public interface AnimeRepository extends ReactiveCrudRepository<Anime, Integer> {
+public interface AnimeRepository extends ReactiveCrudRepository<Anime, Long> {
 
 
     @Query("select * from anime")
     Flux<Anime> getAllAnime();
 
-    Mono<Anime> findAnimeById(int id);
+    Mono<Anime> findAnimeById(long id);
 
 
+    //Mono<Anime> updateBy(long id);
 }

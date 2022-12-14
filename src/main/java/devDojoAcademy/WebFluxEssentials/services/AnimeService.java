@@ -23,7 +23,7 @@ public class AnimeService {
 
 
 
-    public Mono<Anime> findById(int id){
+    public Mono<Anime> findById(long id){
         return animeRepository.findAnimeById(id)
                 .switchIfEmpty(monoResponseStatusException())
                 .log() ;
@@ -33,4 +33,14 @@ public class AnimeService {
         return Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND, "Anime Not Found"));
     }
 
+    public Mono<Anime> save(Anime anime) {
+        return animeRepository.save(anime);
+    }
+
+    public Mono<Void> update(Anime anime){
+        return  findById(anime.getId())
+                .map(animeFound -> anime.withId(animeFound.getId()))
+                .flatMap(animeRepository::save)
+                .thenEmpty(Mono.empty());
+    }
 }
