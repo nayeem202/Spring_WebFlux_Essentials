@@ -1,3 +1,4 @@
+/*
 
 package devDojoAcademy.WebFluxEssentials.Exception;
 
@@ -51,3 +52,4 @@ public class GlobalExceptionHandler extends AbstractErrorWebExceptionHandler {
         return !StringUtils.isEmpty(query)  && query.contains("trace = true");
     }
 }
+*/
