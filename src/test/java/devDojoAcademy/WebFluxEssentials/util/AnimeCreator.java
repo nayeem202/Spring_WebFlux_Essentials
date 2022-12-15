@@ -5,6 +5,7 @@ import devDojoAcademy.WebFluxEssentials.domain.Anime;
 public class AnimeCreator {
     public static Anime createAnimeTestToBeSaved(){
        return Anime.builder()
+
                .name("Nayeem Ahmed")
                .build();
     }

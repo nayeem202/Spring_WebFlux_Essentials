@@ -44,7 +44,7 @@ public class AnimeService {
     }
 
     public Mono<Void> delete(long id) {
-        return AnimefindById(id).flatMap(animeRepository::delete).then();
+        return AnimefindById(id).flatMap(animeRepository::delete);
     }
 
 

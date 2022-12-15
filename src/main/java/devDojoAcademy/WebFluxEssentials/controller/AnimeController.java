@@ -25,7 +25,7 @@ public class AnimeController {
     }
 
     @GetMapping("/{id}")
-    public Mono<Anime> findAnimById(@PathVariable int id){
+    public Mono<Anime> findAnimById(@PathVariable long id){
         return animeService.AnimefindById(id);
     }
 
@@ -46,8 +46,6 @@ public class AnimeController {
     public Mono<Void> delete(@PathVariable long id){
         return animeService.delete(id);
     }
-
-
 
 
 }
