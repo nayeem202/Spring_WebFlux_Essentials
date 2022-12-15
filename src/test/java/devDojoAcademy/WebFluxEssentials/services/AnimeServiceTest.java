@@ -17,8 +17,6 @@ import reactor.test.StepVerifier;
 
 import java.util.concurrent.*;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 @ExtendWith(SpringExtension.class)
 class AnimeServiceTest {
 
@@ -67,6 +65,9 @@ class AnimeServiceTest {
         BDDMockito.when(animeRepositoryMock.findAnimeById(ArgumentMatchers.anyLong()))
                 .thenReturn(Mono.just(anime));
 
+        BDDMockito.when(animeRepositoryMock.save(AnimeCreator.createValidAnime()))
+                .thenReturn(Mono.just(anime));
+
 
     }
 
@@ -82,7 +83,7 @@ class AnimeServiceTest {
     @Test
     @DisplayName("find By Mono Returns a Mono when a id exists returns")
     public void findByIdReturnMono(){
-        StepVerifier.create(animeService.findById(1))
+        StepVerifier.create(animeService.AnimefindById(1))
                 .expectSubscription()
                 .expectNext(anime)
                 .verifyComplete();
@@ -94,11 +95,33 @@ class AnimeServiceTest {
         BDDMockito.when(animeRepositoryMock.findAnimeById(ArgumentMatchers.anyLong()))
                 .thenReturn(Mono.empty());
 
-        StepVerifier.create(animeService.findById(5))
+        StepVerifier.create(animeService.AnimefindById(5))
                 .expectSubscription()
                 .expectError(ResponseStatusException.class)
                 .verify();
     }
+
+    @Test
+    @DisplayName("update returns empty Mono when successful")
+    public void Update_SaveUpdateAnime_whenSuccessful(){
+
+        StepVerifier.create(animeService.update(AnimeCreator.createValidAnime()))
+                .expectSubscription()
+                .verifyComplete();
+    }
+    @Test
+    @DisplayName("update returns Mono error when anime does not exist")
+    public void update_ReturnedMonoError_whenEmptyMonoIsReturned(){
+        BDDMockito.when(animeRepositoryMock.findAnimeById(ArgumentMatchers.anyLong()))
+                .thenReturn(Mono.empty());
+        StepVerifier.create(animeService.update(AnimeCreator.createValidAnime()))
+                .expectSubscription()
+                .expectError(ResponseStatusException.class)
+                .verify();
+    }
+
+
+
 
 
 }

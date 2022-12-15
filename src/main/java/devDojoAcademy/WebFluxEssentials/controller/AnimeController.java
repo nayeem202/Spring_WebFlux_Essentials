@@ -2,7 +2,6 @@ package devDojoAcademy.WebFluxEssentials.controller;
 
 
 import devDojoAcademy.WebFluxEssentials.domain.Anime;
-import devDojoAcademy.WebFluxEssentials.repository.AnimeRepository;
 import devDojoAcademy.WebFluxEssentials.services.AnimeService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -27,7 +26,7 @@ public class AnimeController {
 
     @GetMapping("/{id}")
     public Mono<Anime> findAnimById(@PathVariable int id){
-        return animeService.findById(id);
+        return animeService.AnimefindById(id);
     }
 
     @PostMapping("/save")
