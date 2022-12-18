@@ -16,6 +16,4 @@ public class WebFluxEssentialsApplication {
 		SpringApplication.run(WebFluxEssentialsApplication.class, args);
 	}
 
-
-
 }

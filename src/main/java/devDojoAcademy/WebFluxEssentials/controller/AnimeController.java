@@ -7,9 +7,13 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
+
+
 
 @RestController
 @RequestMapping("/anime")
@@ -26,6 +30,7 @@ public class AnimeController {
     }
 
     @GetMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
     public Mono<Anime> findAnimById(@PathVariable long id){
         return animeService.AnimefindById(id);
     }

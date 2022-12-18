@@ -1,13 +1,13 @@
 package devDojoAcademy.WebFluxEssentials.domain;
 
 
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
+
 import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Table;
+import javax.validation.constraints.NotEmpty;
+
+
 
 @Data
 @AllArgsConstructor
@@ -15,13 +15,14 @@ import org.springframework.data.relational.core.mapping.Table;
 @Builder
 @With
 @Table(name = "anime")
+
 public class Anime {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @NotNull
-    @NotEmpty(message = "Name can not be empty")
+    @NotEmpty
     private String name;
+
+
 }
