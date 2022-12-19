@@ -23,6 +23,4 @@ public class AnimeCreator {
                 .name("Ahmed Nayeem")
                 .build();
     }
-
-
 }

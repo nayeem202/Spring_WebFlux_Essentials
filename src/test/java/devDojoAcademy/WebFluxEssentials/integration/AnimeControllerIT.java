@@ -10,7 +10,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentMatchers;
 import org.mockito.BDDMockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
@@ -25,12 +27,14 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
+import java.util.List;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
 
 @ExtendWith(SpringExtension.class)
-@WebFluxTest
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
 @Import({AnimeService.class, CustomeAttributes.class})
+@AutoConfigureWebTestClient
 public class AnimeControllerIT {
     @MockBean
     private AnimeRepository animeRepositoryMock;
@@ -52,6 +56,9 @@ public class AnimeControllerIT {
                 .thenReturn(Mono.just(anime));
         BDDMockito.when(animeRepositoryMock.save(AnimeCreator.createAnimeTestToBeSaved()))
                 .thenReturn(Mono.just(anime));
+        BDDMockito.when(animeRepositoryMock
+                        .saveAll(List.of(AnimeCreator.createAnimeTestToBeSaved(), AnimeCreator.createAnimeTestToBeSaved())))
+                .thenReturn(Flux.just(anime,anime));
     }
 
     @Test
@@ -144,6 +151,46 @@ public class AnimeControllerIT {
                 .expectBody()
                 .jsonPath("$.status").isEqualTo(408);
     }
+
+    @Test
+    @DisplayName("savebatch Creates a list of anime when succesfully")
+    public void saveBatch_createListOfAnime_when_Successful(){
+        Anime animeToBeSaved = AnimeCreator.createAnimeTestToBeSaved();
+         testClient
+                 .post()
+                 .uri("/anime/batch")
+                 .contentType(MediaType.APPLICATION_JSON)
+                 .body(BodyInserters.fromValue(List.of(animeToBeSaved, animeToBeSaved)))
+                 .exchange()
+                 .expectStatus().isCreated()
+                 .expectBodyList(Anime.class)
+                 .hasSize(2)
+                 .contains(anime);
+    }
+
+
+
+    @Test
+    @DisplayName("save batch returns mono error when one of the objects in the list contains empty or null name")
+    public void saveAll_ReturnsMonoError_WhenContains_Invalid_Name(){
+        Anime animeToBeSaved = AnimeCreator.createAnimeTestToBeSaved();
+
+        BDDMockito.when(animeRepositoryMock.saveAll(ArgumentMatchers.anyIterable()))
+                        .thenReturn(Flux.just(anime.withName(""), anime));
+        testClient
+                .post()
+                .uri("/anime/batch")
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(BodyInserters.fromValue(List.of(animeToBeSaved, animeToBeSaved)))
+                .exchange()
+                .expectStatus().isBadRequest()
+                .expectBody()
+                .jsonPath("$.status").isEqualTo(400);
+    }
+
+
+
+
 
 
 }

@@ -19,6 +19,7 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 import reactor.test.StepVerifier;
 
+import java.util.List;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
 
@@ -76,6 +77,10 @@ class AnimeControllerTest {
 
         BDDMockito.when(animeServiceMock.delete(ArgumentMatchers.anyLong()))
                 .thenReturn(Mono.empty());
+        BDDMockito.when(animeServiceMock
+                        .saveAll(List.of(AnimeCreator.createAnimeTestToBeSaved(), AnimeCreator.createAnimeTestToBeSaved())))
+                .thenReturn(Flux.just(anime,anime));
+
     }
 
 
@@ -142,6 +147,36 @@ class AnimeControllerTest {
                 .verify();
     }
 */
+
+
+    @Test
+    @DisplayName("Batch Creates an Anime When Successful")
+    public void saveAll_CreateAnime_WhenSuccessfull(){
+        Anime animeToBeSaved =  AnimeCreator.createAnimeTestToBeSaved();
+
+        StepVerifier.create(animeController.batchSave(List.of(animeToBeSaved, animeToBeSaved)))
+                .expectSubscription()
+                .expectNext(anime, anime)
+                .verifyComplete();
+    }
+
+/*
+    @Test
+    @DisplayName("SaveAll return a mono error an when one of the  anime is ivalid")
+    public void saveAll_returns_Mono_error_whenContainsInvalidName(){
+        Anime animeToBeSaved =  AnimeCreator.createAnimeTestToBeSaved();
+        BDDMockito.when(animeServiceMock
+                        .saveAll(ArgumentMatchers.anyIterable()))
+                .thenReturn(Flux.just(anime, anime.withName("")));
+        StepVerifier.create(animeServiceMock.saveAll(List.of(animeToBeSaved, animeToBeSaved.withName(""))))
+                .expectSubscription()
+                .expectNext(anime)
+                .expectError(ResponseStatusException.class)
+                .verify();
+    }
+*/
+
+
 
 
 

@@ -5,8 +5,8 @@ package devDojoAcademy.WebFluxEssentials.domain;
 import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Table;
-import javax.validation.constraints.NotEmpty;
 
+import javax.validation.constraints.NotEmpty;
 
 
 @Data

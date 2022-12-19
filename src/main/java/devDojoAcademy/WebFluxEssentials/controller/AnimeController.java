@@ -7,12 +7,11 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-
+import java.util.List;
 
 
 @RestController
@@ -52,6 +51,13 @@ public class AnimeController {
     public Mono<Void> delete(@PathVariable long id){
         return animeService.delete(id);
     }
+
+    @PostMapping("/batch")
+    @ResponseStatus(HttpStatus.CREATED)
+    public Flux<Anime> batchSave( @RequestBody List<Anime> animes){
+        return animeService.saveAll(animes);
+    }
+
 
 
 }

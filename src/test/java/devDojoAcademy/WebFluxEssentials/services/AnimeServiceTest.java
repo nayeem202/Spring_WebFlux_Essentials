@@ -15,6 +15,7 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 import reactor.test.StepVerifier;
 
+import java.util.List;
 import java.util.concurrent.*;
 
 @ExtendWith(SpringExtension.class)
@@ -68,8 +69,12 @@ class AnimeServiceTest {
         BDDMockito.when(animeRepositoryMock.save(AnimeCreator.createAnimeTestToBeSaved()))
                 .thenReturn(Mono.just(anime));
 
-        BDDMockito.when(animeRepositoryMock.save(AnimeCreator.createValidAnime()))
+        BDDMockito.when(animeRepositoryMock.save(AnimeCreator.createAnimeTestToBeSaved()))
                 .thenReturn(Mono.empty());
+
+        BDDMockito.when(animeRepositoryMock
+                        .saveAll(List.of(AnimeCreator.createAnimeTestToBeSaved(), AnimeCreator.createAnimeTestToBeSaved())))
+                .thenReturn(Flux.just(anime,anime));
 
         BDDMockito.when(animeRepositoryMock.delete(ArgumentMatchers.any(Anime.class)))
                 .thenReturn(Mono.empty());
@@ -118,6 +123,30 @@ class AnimeServiceTest {
                 .verifyComplete();
     }
 
+    @Test
+    @DisplayName("SaveAll Creates an Anime When Successful")
+    public void saveAll_CreateAnime_WhenSuccessfull(){
+        Anime animeToBeSaved =  AnimeCreator.createAnimeTestToBeSaved();
+
+        StepVerifier.create(animeService.saveAll(List.of(animeToBeSaved, animeToBeSaved)))
+                .expectSubscription()
+                .expectNext(anime, anime)
+                .verifyComplete();
+    }
+
+    @Test
+    @DisplayName("SaveAll return a mono error an when one of the  anime is ivalid")
+    public void saveAll_returns_Mono_error_whenContainsInvalidName(){
+        Anime animeToBeSaved =  AnimeCreator.createAnimeTestToBeSaved();
+        BDDMockito.when(animeRepositoryMock
+                .saveAll(ArgumentMatchers.anyIterable()))
+                        .thenReturn(Flux.just(anime, anime.withName("")));
+        StepVerifier.create(animeService.saveAll(List.of(animeToBeSaved, animeToBeSaved.withName(""))))
+                .expectSubscription()
+                .expectNext(anime)
+                .expectError(ResponseStatusException.class)
+                .verify();
+    }
 
 
     @Test
@@ -157,9 +186,4 @@ class AnimeServiceTest {
                 .expectSubscription()
                 .verifyComplete();
     }
-
-
-
-
-
 }
