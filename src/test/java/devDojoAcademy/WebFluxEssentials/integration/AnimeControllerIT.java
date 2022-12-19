@@ -45,7 +45,9 @@ public class AnimeControllerIT {
 
     @BeforeAll
     public static void blockHoundSetup(){
-        BlockHound.install();
+        BlockHound.install(
+                builder -> builder.allowBlockingCallsInside("java.util.UUID", "randomUUID")
+        );
     }
 
     @BeforeEach
@@ -59,6 +61,11 @@ public class AnimeControllerIT {
         BDDMockito.when(animeRepositoryMock
                         .saveAll(List.of(AnimeCreator.createAnimeTestToBeSaved(), AnimeCreator.createAnimeTestToBeSaved())))
                 .thenReturn(Flux.just(anime,anime));
+        BDDMockito.when(animeRepositoryMock.save(AnimeCreator.createValidAnime()))
+                .thenReturn(Mono.empty());
+
+        BDDMockito.when(animeRepositoryMock.delete(ArgumentMatchers.any(Anime.class)))
+                .thenReturn(Mono.empty());
     }
 
     @Test
@@ -189,8 +196,15 @@ public class AnimeControllerIT {
     }
 
 
-
-
+    @Test
+    @DisplayName("delete removes an anime when successful")
+    public void delete_Removes_AnAnime_whenSuccessful(){
+        testClient.delete()
+                .uri("/anime/delete/{id}",1)
+                .exchange()
+                .expectStatus()
+                .isNoContent();
+    }
 
 
 }
