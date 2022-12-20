@@ -45,19 +45,18 @@
 			<artifactId>r2dbc-pool</artifactId>
 			<version>${r2dbc-pool.version}</version>
 		</dependency>-->
-<!--
-		<dependency>
-			<groupId>org.springdoc</groupId>
-			<artifactId>springdoc-openapi-webflux-ui</artifactId>
-			<version>${springdoc-openapi-webflux-ui.version}</version>
-		</dependency>-->
+                <dependency>
+                    <groupId>org.springdoc</groupId>
+                    <artifactId>springdoc-openapi-webflux-ui</artifactId>
+                    <version>${springdoc-openapi-webflux-ui.version}</version>
+                </dependency>
 
-	<!--	<dependency>
-			<groupId>org.springdoc</groupId>
-			<artifactId>springdoc-openapi-ui</artifactId>
-			<version>1.6.11</version>
-		</dependency>
--->
+		<!--	<dependency>
+                <groupId>org.springdoc</groupId>
+                <artifactId>springdoc-openapi-ui</artifactId>
+                <version>1.6.11</version>
+            </dependency>
+    -->
 
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -127,11 +126,11 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-security</artifactId>
 		</dependency>
-	<!--	<dependency>
-			<groupId>io.springfox</groupId>
-			<artifactId>springfox-swagger-ui</artifactId>
-			<version>2.9.2</version>
-		</dependency>-->
+		<!--	<dependency>
+                <groupId>io.springfox</groupId>
+                <artifactId>springfox-swagger-ui</artifactId>
+                <version>2.9.2</version>
+            </dependency>-->
 
 
 		<dependency>
