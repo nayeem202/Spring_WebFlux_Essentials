@@ -3,6 +3,7 @@ package devDojoAcademy.WebFluxEssentials.controller;
 
 import devDojoAcademy.WebFluxEssentials.domain.Anime;
 import devDojoAcademy.WebFluxEssentials.services.AnimeService;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,7 +26,9 @@ public class AnimeController {
 
     @GetMapping("/")
     @ResponseStatus(HttpStatus.OK)
-    @PreAuthorize("hasRole(ADMIN)")
+    @PreAuthorize("hasRole('USER')")
+    @Operation(summary = "List all animies",
+    tags = {"anime"})
     public Flux<Anime> listAll(){
         return animeService.getAllAnime();
     }

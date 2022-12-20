@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Table("devDojo_User")
+@Table("devdojo_user")
 public class DevDojoUser implements UserDetails {
     @Id
     private long id;

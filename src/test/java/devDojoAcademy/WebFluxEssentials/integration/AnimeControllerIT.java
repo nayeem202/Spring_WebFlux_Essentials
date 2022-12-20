@@ -5,21 +5,20 @@ import devDojoAcademy.WebFluxEssentials.domain.Anime;
 import devDojoAcademy.WebFluxEssentials.repository.AnimeRepository;
 import devDojoAcademy.WebFluxEssentials.services.AnimeService;
 import devDojoAcademy.WebFluxEssentials.util.AnimeCreator;
+import devDojoAcademy.WebFluxEssentials.util.WebTestClientUtil;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentMatchers;
 import org.mockito.BDDMockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
-import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
-import org.springframework.http.client.reactive.ClientHttpRequest;
+import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.reactive.server.WebTestClient;
-import org.springframework.web.reactive.function.BodyInserter;
 import org.springframework.web.reactive.function.BodyInserters;
 import reactor.blockhound.BlockHound;
 import reactor.blockhound.BlockingOperationError;
@@ -36,10 +35,23 @@ import java.util.concurrent.TimeUnit;
 @Import({AnimeService.class, CustomeAttributes.class})
 @AutoConfigureWebTestClient
 public class AnimeControllerIT {
+
+    private static final String ADMIN_USER =  "nayeem";
+    private static final String REGULAR_USER = "devdojo";
+
+
+   @Autowired
+   private WebTestClientUtil webTestClientUtil;
+
     @MockBean
     private AnimeRepository animeRepositoryMock;
+
     @Autowired
-    private WebTestClient testClient;
+    private WebTestClient client;
+
+    private WebTestClient testClientUser;
+    private WebTestClient testClientInvalid;
+    private WebTestClient testClientAdmin;
 
     private final Anime anime = AnimeCreator.createValidAnime();
 
@@ -52,6 +64,11 @@ public class AnimeControllerIT {
 
     @BeforeEach
     public void setup(){
+
+        testClientUser = webTestClientUtil.authenticateClient("mehedi", "devdojo");
+        testClientAdmin = webTestClientUtil.authenticateClient("nayeem", "devdojo");
+        testClientInvalid = webTestClientUtil.authenticateClient("x", "x");
+
         BDDMockito.when(animeRepositoryMock.findAll())
                 .thenReturn(Flux.just(anime));
         BDDMockito.when(animeRepositoryMock.findAnimeById(ArgumentMatchers.anyLong()))
@@ -88,7 +105,7 @@ public class AnimeControllerIT {
     @Test
     @DisplayName("ListAll returns a flux of anime")
     public void listAll_ReturnFluxOfAnime_whenSuccessful(){
-        testClient
+        testClientUser
                 .get()
                 .uri("/anime/")
                 .exchange()
@@ -100,7 +117,7 @@ public class AnimeControllerIT {
     @Test
     @DisplayName("findById returns a Mono with anime when it exists")
         public void findBy_ReturnMonoAnime_whenSuccessful(){
-            testClient
+            testClientUser
                     .get()
                     .uri("/anime/{id}",1)
                     .exchange()
@@ -116,7 +133,7 @@ public class AnimeControllerIT {
     public void findById_ReturnMonoError_whenMonoIsReturned(){
         BDDMockito.when(animeRepositoryMock.findAnimeById(ArgumentMatchers.anyLong()))
                         .thenReturn(Mono.empty());
-        testClient
+        testClientUser
                 .get()
                 .uri("anime/{id}",1)
                 .exchange()
@@ -132,7 +149,7 @@ public class AnimeControllerIT {
     @DisplayName("Save Creates an Anime When Successful")
     public void save_CreateAnime_WhenSuccessfull(){
         Anime animeToBeSaved = AnimeCreator.createAnimeTestToBeSaved();
-        testClient
+        testClientUser
                 .post()
                 .uri("/anime/save")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -148,7 +165,7 @@ public class AnimeControllerIT {
     @DisplayName("Save Return error")
     public void saveReturnError() {
         Anime animeToBeSaved = AnimeCreator.createAnimeTestToBeSaved().withName("");
-        testClient
+        testClientUser
                 .post()
                 .uri("/anime/save")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -163,7 +180,7 @@ public class AnimeControllerIT {
     @DisplayName("savebatch Creates a list of anime when succesfully")
     public void saveBatch_createListOfAnime_when_Successful(){
         Anime animeToBeSaved = AnimeCreator.createAnimeTestToBeSaved();
-         testClient
+         testClientAdmin
                  .post()
                  .uri("/anime/batch")
                  .contentType(MediaType.APPLICATION_JSON)
@@ -184,7 +201,7 @@ public class AnimeControllerIT {
 
         BDDMockito.when(animeRepositoryMock.saveAll(ArgumentMatchers.anyIterable()))
                         .thenReturn(Flux.just(anime.withName(""), anime));
-        testClient
+        testClientAdmin
                 .post()
                 .uri("/anime/batch")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -199,12 +216,53 @@ public class AnimeControllerIT {
     @Test
     @DisplayName("delete removes an anime when successful")
     public void delete_Removes_AnAnime_whenSuccessful(){
-        testClient.delete()
+        testClientAdmin.delete()
                 .uri("/anime/delete/{id}",1)
                 .exchange()
                 .expectStatus()
                 .isNoContent();
     }
+
+
+    @Test
+    @DisplayName("ListAll returns unauthorized when user is not authenticated")
+    public void ListAll_ReturnsAuthorized_WhenUserISNotAuthenticated(){
+        client
+                .get()
+                .uri("/anime/")
+                .exchange()
+                .expectStatus().isUnauthorized();
+
+    }
+
+
+    @Test
+    @DisplayName("ListAll returns unauthorized when user is not authenticated")
+    public void ListAll_ReturnsForbidden_WhenUserISNotHaveACtiveRole(){
+        testClientAdmin
+                .get()
+                .uri("/anime/")
+                .exchange()
+                .expectStatus().isForbidden();
+
+    }
+
+
+    @Test
+    @DisplayName("ListAll returns unauthorized when user is not authenticated")
+    @WithUserDetails(ADMIN_USER)
+    public void ListAll_EReturnsForbidden_WhenUserISNotHaveACtiveRole(){
+        client
+                .get()
+                .uri("/anime/")
+                .exchange()
+                .expectStatus().isForbidden();
+
+    }
+
+
+
+
 
 
 }
