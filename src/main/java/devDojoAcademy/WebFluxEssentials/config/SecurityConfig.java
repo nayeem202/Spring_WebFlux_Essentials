@@ -10,11 +10,12 @@ import org.springframework.security.authentication.UserDetailsRepositoryReactive
 import org.springframework.security.config.annotation.method.configuration.EnableReactiveMethodSecurity;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
+import org.springframework.security.core.userdetails.MapReactiveUserDetailsService;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.factory.PasswordEncoderFactories;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.server.SecurityWebFilterChain;
-
-
-import org.w3c.dom.UserDataHandler;
-
 
 
 @EnableWebFluxSecurity
@@ -22,28 +23,34 @@ import org.w3c.dom.UserDataHandler;
 @Configuration
 public class SecurityConfig {
     @Bean
-    public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http){
+    public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
         //@formatter::off
         return http
                 .csrf().disable()
                 .authorizeExchange()
-                    .pathMatchers(HttpMethod.POST, "/anime/**").hasRole("ADMIN")
-                    .pathMatchers(HttpMethod.PUT, "/anime/**").hasRole("ADMIN")
-                    .pathMatchers(HttpMethod.DELETE, "/anime/**").hasRole("ADMIN")
-                    .pathMatchers(HttpMethod.GET, "/anime/**").hasRole("USER")
+                .pathMatchers(HttpMethod.POST, "/anime/**").hasRole("USER")
+                .pathMatchers(HttpMethod.PUT, "/anime/**").hasRole("USER")
+                .pathMatchers(HttpMethod.DELETE, "/anime/**").hasRole("USER")
+                .pathMatchers(HttpMethod.GET, "/anime/**").hasRole("USER")
+                .pathMatchers("/swagger-resources/**", "/swagger-ui.html",
+                        "/swagger-ui/**",
+                        "/v3/api-docs/**",
+                        "/webjars/**",
+                        "/favicon.ico")
+                .permitAll()
                 .anyExchange().authenticated()
-                    .and()
+                .and()
                 .formLogin()
-                    .and()
+                .and()
                 .httpBasic()
-                    .and()
+                .and()
                 .build();
         //formatter:on
     }
 
 
-  /*  @Bean
-    public MapReactiveUserDetailsService UserDetailsService(){
+ /*   @Bean
+    public MapReactiveUserDetailsService UserDetailsService() {
         PasswordEncoder passwordEncoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
         UserDetails user = User.withUsername("user")
                 .password(passwordEncoder.encode("devdojo"))
@@ -51,14 +58,14 @@ public class SecurityConfig {
                 .build();
         UserDetails admin = User.withUsername("admin")
                 .password(passwordEncoder.encode("devdojo"))
-                .roles("USER","ADMIN")
+                .roles("USER", "ADMIN")
                 .build();
         return new MapReactiveUserDetailsService(user, admin);
     }
 */
 
     @Bean
-    ReactiveAuthenticationManager authenticationManager(DevDojoUserService devDojoUserService){
+    ReactiveAuthenticationManager authenticationManager(DevDojoUserService devDojoUserService) {
         return new UserDetailsRepositoryReactiveAuthenticationManager(devDojoUserService);
     }
 

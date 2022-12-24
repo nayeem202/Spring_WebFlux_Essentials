@@ -1,10 +1,13 @@
 
 server:
-  port: 9292
+  port: 8080
 
 spring:
   r2dbc:
     url: r2dbc:postgresql://localhost:5432/postgres?schema=public
     username: postgres
     password: 123456
+
+
+
 

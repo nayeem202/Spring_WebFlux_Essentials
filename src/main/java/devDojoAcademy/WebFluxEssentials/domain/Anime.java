@@ -1,11 +1,8 @@
 package devDojoAcademy.WebFluxEssentials.domain;
 
-
-
 import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Table;
-
 import javax.validation.constraints.NotEmpty;
 
 
@@ -16,6 +13,7 @@ import javax.validation.constraints.NotEmpty;
 @With
 @Table(name = "anime")
 
+
 public class Anime {
 
     @Id
@@ -23,6 +21,5 @@ public class Anime {
 
     @NotEmpty
     private String name;
-
 
 }
